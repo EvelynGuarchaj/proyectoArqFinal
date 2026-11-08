@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("URL_BASE_DATOS")
+}
+
+enum Rol {
+  administrador
+  docente
+  estudiante
+}
+
+enum EstadoReserva {
+  confirmada
+  cancelada
+}
+
+enum TipoEspacio {
+  laboratorio
+  salon
+}
+
+model Usuario {
+  id             Int             @id @default(autoincrement())
+  nombre         String
+  correo         String          @unique
+  hashContrasena String
+  rol            Rol             @default(estudiante)
+  creadoEn       DateTime        @default(now())
+  reservas       Reserva[]
+  tokensRefresco TokenRefresco[]
+
+  @@map("usuarios")
+}
+
+model TokenRefresco {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int
+  hashToken String   @unique
+  expiraEn  DateTime
+  revocado  Boolean  @default(false)
+  creadoEn  DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("tokens_refresco")
+}
+
+model Espacio {
+  id           Int         @id @default(autoincrement())
+  nombre       String      @unique
+  edificio     String
+  capacidad    Int
+  tipo         TipoEspacio
+  horaApertura Int         @default(7)
+  horaCierre   Int         @default(21)
+  activo       Boolean     @default(true)
+  creadoEn     DateTime    @default(now())
+  reservas     Reserva[]
+
+  @@map("espacios")
+}
+
+model Reserva {
+  id        Int           @id @default(autoincrement())
+  espacioId Int
+  usuarioId Int
+  inicio    DateTime      @db.Timestamptz(3)
+  fin       DateTime      @db.Timestamptz(3)
+  motivo    String
+  estado    EstadoReserva @default(confirmada)
+  creadaEn  DateTime      @default(now())
+  espacio   Espacio       @relation(fields: [espacioId], references: [id])
+  usuario   Usuario       @relation(fields: [usuarioId], references: [id])
+
+  @@index([espacioId, inicio])
+  @@map("reservas")
+}
+
+model LlaveApi {
+  id              Int       @id @default(autoincrement())
+  nombre          String
+  prefijo         String
+  hashLlave       String    @unique
+  permisos        String[]
+  limitePorMinuto Int       @default(60)
+  ultimoUso       DateTime?
+  revocada        Boolean   @default(false)
+  creadaEn        DateTime  @default(now())
+
+  @@map("llaves_api")
+}
