@@ -1,0 +1,11 @@
+node_modules
+.env
+coverage
+dist
+.turbo
+# IA y guías personales (no se suben)
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+docs/REPARTO_DE_TRABAJO.md
+GUIA_*.md

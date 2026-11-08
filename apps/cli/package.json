@@ -1,0 +1,18 @@
+{
+  "name": "cli",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cli": "dotenv -e ../../.env -- tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@reservalab/shared": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "dotenv-cli": "^11.1.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}
