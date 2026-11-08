@@ -1,0 +1,59 @@
+services:
+  basedatos:
+    image: postgres:16-alpine
+    env_file: .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - datos_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  cache:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  notificaciones:
+    image: mockoon/cli:latest
+    command: ["--data", "/datos/notificaciones.json", "--port", "3001"]
+    volumes:
+      - ./mocks:/datos:ro
+    ports:
+      - "3001:3001"
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file: .env
+    environment:
+      URL_BASE_DATOS: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@basedatos:5432/${POSTGRES_DB}
+      URL_REDIS: redis://cache:6379
+      URL_NOTIFICACIONES: http://notificaciones:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      basedatos:
+        condition: service_healthy
+      cache:
+        condition: service_started
+      notificaciones:
+        condition: service_started
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    env_file: .env
+    ports:
+      - "5173:5173"
+    depends_on:
+      api:
+        condition: service_started
+
+volumes:
+  datos_postgres:
