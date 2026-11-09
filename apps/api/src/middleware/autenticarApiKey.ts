@@ -1,3 +1,4 @@
+// DUEÑA: Integrante C (stub creado por A)
 import type { RequestHandler } from 'express';
 import { PREFIJO_LLAVE, type Permiso } from '@reservalab/shared';
 import * as repositorioLlavesApi from '../repositorios/repositorioLlavesApi';
