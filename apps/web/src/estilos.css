@@ -208,3 +208,7 @@ tr.libre .estado {
   color: #386641;
   font-weight: 700;
 }
+
+[hidden] {
+  display: none !important;
+}
