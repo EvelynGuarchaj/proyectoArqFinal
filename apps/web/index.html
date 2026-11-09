@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ReservaLab — Reservas</title>
+    <link rel="stylesheet" href="/src/estilos.css" />
+  </head>
+  <body>
+    <header class="encabezado">
+      <h1>ReservaLab</h1>
+
+      <div id="barra-usuario" hidden>
+        <span id="nombre-usuario"></span>
+        <button id="boton-salir" type="button">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="seccion-login" class="tarjeta">
+        <h2>Iniciar sesión</h2>
+
+        <form id="formulario-login">
+          <label>
+            Correo
+            <input
+              id="campo-correo"
+              name="correo"
+              type="email"
+              required
+              autocomplete="username"
+            />
+          </label>
+
+          <label>
+            Contraseña
+            <input
+              id="campo-contrasena"
+              name="contrasena"
+              type="password"
+              required
+              autocomplete="current-password"
+            />
+          </label>
+
+          <button type="submit">Entrar</button>
+          <p id="mensaje-login" class="mensaje" role="alert"></p>
+        </form>
+
+        <p class="ayuda">Prueba: docente@reservalab.edu / Docente1234</p>
+      </section>
+
+      <section id="seccion-reservas" hidden>
+        <div class="tarjeta">
+          <h2>Disponibilidad</h2>
+
+          <div class="filtros">
+            <label>
+              Espacio
+              <select id="selector-espacio"></select>
+            </label>
+
+            <label>
+              Fecha
+              <input id="selector-fecha" type="date" />
+            </label>
+
+            <label>
+              Motivo
+              <input id="campo-motivo" type="text" value="Clase" maxlength="200" />
+            </label>
+          </div>
+
+          <p id="mensaje-reservas" class="mensaje" role="status"></p>
+          <ul id="lista-bloques" class="bloques"></ul>
+        </div>
+
+        <div class="tarjeta">
+          <h2>Mis reservas</h2>
+          <ul id="lista-mis-reservas" class="lista"></ul>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/principal.ts"></script>
+  </body>
+</html>

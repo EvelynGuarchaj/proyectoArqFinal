@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ReservaLab — Ocupación actual</title>
+    <link rel="stylesheet" href="/src/estilos.css" />
+  </head>
+  <body class="pantalla">
+    <header class="encabezado">
+      <h1>Ocupación actual</h1>
+      <p id="hora-actualizacion" class="ayuda">Cargando…</p>
+    </header>
+
+    <main>
+      <p id="mensaje-pantalla" class="mensaje" role="status"></p>
+
+      <table id="tabla-ocupacion">
+        <thead>
+          <tr>
+            <th>Edificio</th>
+            <th>Espacio</th>
+            <th>Estado</th>
+            <th>Reserva actual</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </main>
+
+    <script type="module" src="/src/pantalla.ts"></script>
+  </body>
+</html>
