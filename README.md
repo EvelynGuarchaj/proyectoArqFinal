@@ -40,6 +40,16 @@ Para empezar de cero (borrar los datos): `docker compose down -v && docker compo
 | Pantalla informativa | http://localhost:5173/pantalla.html |
 | Mockoon (notificaciones) | http://localhost:3001 |
 
+### Qué puede hacer cada rol
+
+| Rol | Funciones |
+| --- | --- |
+| Administrador | Puede crear, editar y desactivar espacios, definir sus horarios y gestionar las cuentas de usuario. También puede consultar disponibilidad, crear reservas y cancelarlas. |
+| Docente | Puede consultar disponibilidad, crear reservas y cancelar las que él mismo creó. |
+| Estudiante | Puede consultar la disponibilidad y ver en **Mis reservas** las reservas vinculadas a su cuenta. |
+
+Al crear una reserva, el docente o administrador selecciona el primer bloque libre y elige la hora final en **Reservar hasta**. Los bloques deben ser libres y consecutivos. Al confirmar, se registra una sola reserva para todo el tramo. En la misma ventana se puede vincular opcionalmente a un estudiante.
+
 ### Usuarios de prueba (semilla)
 
 | Rol | Nombre | Correo | Contraseña |
@@ -65,6 +75,16 @@ Los 9 laboratorios del **edificio D**, todos de 7 a 21 h:
 | Laboratorio de Dibujo | 35 |
 
 También crea una reserva de Yaniz (docente) en el `Laboratorio de Computación 1` mañana de 08:00 a 10:00.
+
+### Cargar los datos de prueba en una instalación existente
+
+Si la base de datos ya contiene usuarios, el arranque omite la carga automática de los datos de prueba. Para cargar las cuentas y los laboratorios de ejemplo, ejecuta este comando desde la raíz del proyecto con Docker Compose en ejecución:
+
+```bash
+docker compose exec api pnpm --filter api exec prisma db seed
+```
+
+El comando conserva las reservas existentes. Si ya existen cuentas o espacios que coinciden con los datos de ejemplo, puede actualizar sus valores.
 
 ### Llave API demo
 
