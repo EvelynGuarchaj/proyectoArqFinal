@@ -143,8 +143,17 @@ reservalab/
 - Documentación: índice de arquitectura, contexto y requisitos, vista física, ADR 0001–0003 y este README.
 
 ### Integrante B — Espacios, reservas y caché
+<<<<<<< HEAD
+- RF-05 a RF-10: espacios, disponibilidad por bloques de 60 min y reservas.
+- Regla de no traslape en el servicio y en PostgreSQL (restricción reservas_sin_traslape, ADR 0004).
+- Caché Redis de 60 s con X-Cache e invalidación por patrón (ADR 0005).
+- Mock de notificaciones en Mockoon y cliente no bloqueante (ADR 0006).
+- Pruebas: unitarias con mocks, integración con Supertest y contra Mockoon.
+- Documentación: vista lógica, vista de procesos y ADR 0004–0006.
+=======
 
 Pendiente.
+>>>>>>> 9b887f4a015e2dd23282c0174f46ace28275cef7
 
 ### Integrante C — Llaves API y clientes
 - Middleware `autenticarApiKey`, `limitarSolicitudes` (ventana fija en Redis), `requerirPermiso` y `autenticarJwtOApiKey`.
