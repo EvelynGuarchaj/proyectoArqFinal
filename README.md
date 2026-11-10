@@ -147,9 +147,13 @@ reservalab/
 Pendiente.
 
 ### Integrante C — Llaves API y clientes
-
-Pendiente.
+- Middleware `autenticarApiKey`, `limitarSolicitudes` (ventana fija en Redis), `requerirPermiso` y `autenticarJwtOApiKey`.
+- RF-12 `POST/GET/DELETE /api-keys` (llave `rl_live_...` mostrada una sola vez, guardada como hash SHA-256).
+- RF-11 `GET /now`: ocupación actual por edificio con caché y `X-Cache`.
+- Interfaz web (`apps/web`): inicio de sesión y reservas en `index.html`, pantalla informativa en `pantalla.html` (refresco cada 30 s con la llave demo).
+- CLI (`apps/cli`): `crear-espacio`, `crear-llave`, `listar-llaves`, `revocar-llave`.
+- Pruebas en `pruebas/llaves` y `pruebas/ahora`; vista de desarrollo, atributos de calidad y ADR 0007–0009.
 
 ## Uso de IA
-
 - Integrante A: Claude Code para generar diagramas y semillas de prueba
+- Integrante C: ChatGPT para apoyar la implementación de llaves API
