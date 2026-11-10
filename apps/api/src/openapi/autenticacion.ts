@@ -180,9 +180,39 @@ export const rutasDocAutenticacion: Record<string, unknown> = {
         204: { description: 'Sesión cerrada (token de refresco revocado)' },
         400: errorValidacion,
         401: {
-          ...errorTokenInvalido,
           description:
             'Falta el token de acceso (NO_AUTENTICADO), es inválido (TOKEN_INVALIDO) o el token de refresco no es del usuario (TOKEN_INVALIDO)',
+          content: {
+            'application/json': {
+              schema: errorTokenInvalido.content['application/json'].schema,
+              examples: {
+                sinToken: {
+                  summary: 'Sin encabezado Authorization',
+                  value: { error: { codigo: 'NO_AUTENTICADO', mensaje: 'Falta el token de acceso', detalles: null } },
+                },
+                tokenAccesoInvalido: {
+                  summary: 'Token de acceso falso o vencido',
+                  value: {
+                    error: {
+                      codigo: 'TOKEN_INVALIDO',
+                      mensaje: 'El token de acceso es inválido o está vencido',
+                      detalles: null,
+                    },
+                  },
+                },
+                tokenRefrescoAjeno: {
+                  summary: 'El token de refresco no existe o es de otro usuario',
+                  value: {
+                    error: {
+                      codigo: 'TOKEN_INVALIDO',
+                      mensaje: 'El token de refresco es inválido o está vencido',
+                      detalles: null,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },
