@@ -52,6 +52,17 @@ beforeEach(() => {
 });
 
 describe('servicioReservas.crear', () => {
+  it('rechaza un horario válido que ya empezó', async () => {
+    const reloj = vi.spyOn(Date, 'now').mockReturnValue(new Date('2030-01-15T08:30:00-06:00').getTime());
+    try {
+      await expect(servicioReservas.crear(2, datosValidos)).rejects.toMatchObject({
+        estado: 400, codigo: 'FUERA_DE_HORARIO',
+      });
+      expect(repositorioReservas.crear).not.toHaveBeenCalled();
+    } finally {
+      reloj.mockRestore();
+    }
+  });
   it('crea la reserva, invalida la caché y envía la notificación', async () => {
     const reserva = await servicioReservas.crear(2, datosValidos);
 
@@ -135,6 +146,18 @@ describe('servicioReservas.cancelar', () => {
   it('un administrador puede cancelar una reserva ajena', async () => {
     const reserva = await servicioReservas.cancelar(99, { id: 1, rol: 'administrador' });
     expect(reserva.estado).toBe('cancelada');
+  });
+
+  it('rechaza cancelar una reserva terminada incluso como administrador', async () => {
+    const reloj = vi.spyOn(Date, 'now').mockReturnValue(filaReserva.fin.getTime());
+    try {
+      await expect(servicioReservas.cancelar(99, { id: 1, rol: 'administrador' })).rejects.toMatchObject({
+        estado: 400, codigo: 'FUERA_DE_HORARIO',
+      });
+      expect(repositorioReservas.cancelar).not.toHaveBeenCalled();
+    } finally {
+      reloj.mockRestore();
+    }
   });
 
   it('si ya estaba cancelada no vuelve a notificar', async () => {

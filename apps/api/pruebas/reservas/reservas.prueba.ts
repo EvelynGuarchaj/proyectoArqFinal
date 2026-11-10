@@ -96,6 +96,18 @@ describe('POST /reservations', () => {
   });
 });
 
+it('lista todas las reservas a docentes y administradores y bloquea al estudiante', async () => {
+  const creada = await reservar(tokenAdmin, '20:00', '21:00').expect(201);
+  for (const token of [tokenDocente, tokenAdmin]) {
+    const listado = await request(app).get('/api/v1/reservations')
+      .set('Authorization', `Bearer ${token}`).expect(200);
+    expect(listado.body).toContainEqual(expect.objectContaining({ id: creada.body.id, espacio: expect.any(Object) }));
+  }
+  await request(app).get('/api/v1/reservations').set('Authorization', `Bearer ${tokenEstudiante}`).expect(403);
+  await request(app).delete(`/api/v1/reservations/${creada.body.id}`)
+    .set('Authorization', `Bearer ${tokenDocente}`).expect(403);
+});
+
 describe('GET /reservations/me y DELETE /reservations/:id', () => {
   it('lista mis reservas con los datos del espacio, ordenadas por inicio', async () => {
     const respuesta = await request(app).get('/api/v1/reservations/me').set('Authorization', `Bearer ${tokenDocente}`);
@@ -107,7 +119,7 @@ describe('GET /reservations/me y DELETE /reservations/:id', () => {
     expect([...inicios].sort()).toEqual(inicios);
   });
 
-  it('cancelar: ajena 403, dueño 200, y el horario se puede volver a reservar', async () => {
+  it('cancelar: estudiante 403, administrador 200 en reserva ajena, y el horario se libera', async () => {
     const creada = await reservar(tokenDocente, '18:00', '19:00');
     expect(creada.status).toBe(201);
     const id = creada.body.id;
@@ -115,7 +127,7 @@ describe('GET /reservations/me y DELETE /reservations/:id', () => {
     const ajena = await request(app).delete(`/api/v1/reservations/${id}`).set('Authorization', `Bearer ${tokenEstudiante}`);
     expect(ajena.status).toBe(403);
 
-    const cancelada = await request(app).delete(`/api/v1/reservations/${id}`).set('Authorization', `Bearer ${tokenDocente}`);
+    const cancelada = await request(app).delete(`/api/v1/reservations/${id}`).set('Authorization', `Bearer ${tokenAdmin}`);
     expect(cancelada.status).toBe(200);
     expect(cancelada.body.estado).toBe('cancelada');
 

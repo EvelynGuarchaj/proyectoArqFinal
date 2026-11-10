@@ -10,6 +10,8 @@ import { validar } from '../middleware/validar';
 
 export const rutasReservas = Router();
 
+rutasReservas.get('/', autenticarJwt, requerirRol('docente', 'administrador'), controladorReservas.listarTodas);
+
 // RF-08
 rutasReservas.post(
   '/',

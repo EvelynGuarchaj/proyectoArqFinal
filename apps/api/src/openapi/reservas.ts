@@ -28,7 +28,7 @@ const esquemaReserva = {
     estado: { type: 'string', enum: ['confirmada', 'cancelada'] },
     espacio: {
       type: 'object',
-      description: 'Solo en GET /reservations/me',
+      description: 'Incluido en los listados de reservas',
       properties: { nombre: { type: 'string' }, edificio: { type: 'string' } },
     },
   },
@@ -36,9 +36,19 @@ const esquemaReserva = {
 
 export const rutasDocReservas: Record<string, unknown> = {
   '/reservations': {
+    get: {
+      tags: ['Reservas'],
+      summary: 'Listar todas las reservas (docente o administrador)',
+      security: [{ jwt: [] }],
+      responses: {
+        200: { description: 'Todas las reservas', content: { 'application/json': { schema: { type: 'array', items: esquemaReserva } } } },
+        401: respuestaError('NO_AUTENTICADO'),
+        403: respuestaError('PROHIBIDO'),
+      },
+    },
     post: {
       tags: ['Reservas'],
-      summary: 'RF-08 Crear reserva (docente o administrador); rechaza traslapes con 409',
+      summary: 'RF-08 Crear reserva para un horario que aún no ha empezado (docente o administrador)',
       security: [{ jwt: [] }],
       requestBody: {
         required: true,
@@ -105,6 +115,7 @@ export const rutasDocReservas: Record<string, unknown> = {
       parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer', minimum: 1 } }],
       responses: {
         200: { description: 'Reserva cancelada', content: { 'application/json': { schema: esquemaReserva } } },
+        400: respuestaError('FUERA_DE_HORARIO (la reserva ya terminó)'),
         401: respuestaError('NO_AUTENTICADO'),
         403: respuestaError('PROHIBIDO (se requiere ser el docente dueño o un administrador)'),
         404: respuestaError('NO_ENCONTRADO'),

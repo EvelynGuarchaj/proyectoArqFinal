@@ -40,7 +40,7 @@ Todas las rutas están bajo `/api/v1` y responden JSON.
 | RF-07 | `GET /spaces/:id/availability?date=` | Bloques de 60 min libres u ocupados de un espacio en un día. Con caché. | JWT o llave `read:spaces` |
 | RF-08 | `POST /reservations` | Crear una reserva dentro del horario del espacio y sin traslapes (409 `TRASLAPE`). | Docente, administrador |
 | RF-09 | `GET /reservations/me` | Listar mis reservas con los datos del espacio. | Autenticado |
-| RF-10 | `DELETE /reservations/:id` | Cancelar una reserva (solo su dueño o un administrador). | Autenticado |
+| RF-10 | `DELETE /reservations/:id` | Cancelar una reserva. El docente puede cancelar las que creó y el administrador puede cancelar cualquiera. | Docente propietario o administrador |
 | RF-11 | `GET /now` | Ocupación actual agrupada por edificio, para la pantalla informativa. Con caché y límite de solicitudes. | Llave `read:now` |
 | RF-12 | `POST/GET/DELETE /api-keys` | Crear (se muestra una sola vez), listar y revocar llaves API. | Administrador |
 | RF-13 | `GET /health` | Estado de la API, la base de datos y la caché (200 `ok` o 503 `degradado`). | Público |

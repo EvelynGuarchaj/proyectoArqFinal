@@ -2,11 +2,9 @@
 
 import { prisma } from '../config/baseDatos';
 
-// Espacios activos con la reserva confirmada que
-// está ocurriendo en "ahora" (inicio <= ahora < fin).
-// Como no hay traslapes, a lo mucho hay una.
+// Incluye la reserva actual y la próxima para saber cuándo caduca la ocupación.
 
-export async function obtenerEspaciosConReservaActual(ahora: Date) {
+export async function obtenerEspaciosConReservasVigentes(ahora: Date) {
   return prisma.espacio.findMany({
     where: {
       activo: true
@@ -19,13 +17,12 @@ export async function obtenerEspaciosConReservaActual(ahora: Date) {
       reservas: {
         where: {
           estado: 'confirmada',
-          inicio: { lte: ahora },
           fin: { gt: ahora }
         },
         orderBy: {
           inicio: 'asc'
         },
-        take: 1
+        take: 2
       }
     }
   });

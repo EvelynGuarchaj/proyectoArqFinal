@@ -71,6 +71,13 @@ export function listarConfirmadasEnRango(espacioId: number, desde: Date, hasta: 
   });
 }
 
+export function listarTodas() {
+  return prisma.reserva.findMany({
+    include: { espacio: { select: { nombre: true, edificio: true } } },
+    orderBy: [{ inicio: 'asc' }, { id: 'asc' }],
+  });
+}
+
 export function listarPorUsuario(usuarioId: number, esEstudiante: boolean) {
   const where = esEstudiante
     ? { OR: [{ estudianteId: usuarioId }, { usuarioId, estudianteId: null }] }

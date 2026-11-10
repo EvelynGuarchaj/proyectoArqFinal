@@ -62,6 +62,7 @@ const mensajeEstudiantes = porId<HTMLSpanElement>('mensaje-estudiantes');
 const campoMotivo = porId<HTMLInputElement>('campo-motivo');
 const mensajeReservas = porId<HTMLParagraphElement>('mensaje-reservas');
 const listaBloques = porId<HTMLUListElement>('lista-bloques');
+const tituloListaReservas = porId<HTMLHeadingElement>('titulo-lista-reservas');
 const listaMisReservas = porId<HTMLUListElement>('lista-mis-reservas');
 
 const seccionAdministracion = porId<HTMLElement>('seccion-administracion');
@@ -178,6 +179,7 @@ async function entrarAReservas() {
   seccionReservas.hidden = false;
   seccionAdministracion.hidden = usuario?.rol !== 'administrador';
   campoMotivoEtiqueta.hidden = !puedeReservar();
+  tituloListaReservas.textContent = puedeReservar() ? 'Todas las reservas' : 'Mis reservas';
   listaBloques.replaceChildren();
   listaMisReservas.replaceChildren();
 
@@ -189,7 +191,7 @@ async function entrarAReservas() {
 
   await Promise.all([
     cargarBloques(),
-    cargarMisReservas(),
+    cargarListaReservas(),
     abrirPanelUsuarios()
   ]);
 }
@@ -208,6 +210,11 @@ selectorFinReserva.addEventListener('change', mostrarHorarioReserva);
 
 async function abrirDialogoReserva(espacioId: number, inicio: string, fines: string[]) {
   if (!puedeReservar() || dialogoReserva.open) return;
+  if (new Date(inicio).getTime() < Date.now()) {
+    mostrarMensaje(mensajeReservas, 'Ese horario ya comenzó. Elige otro bloque.', 'error');
+    void cargarBloques();
+    return;
+  }
 
   const pendiente = { espacioId, inicio, fines };
   reservaPendiente = pendiente;
@@ -399,6 +406,7 @@ async function cargarBloques() {
 
     listaBloques.replaceChildren(
       ...disponibilidad.bloques.map((bloque, indice) => {
+        const horarioPasado = new Date(bloque.inicio).getTime() < Date.now();
         const elemento = crearElemento(
           'li',
           undefined,
@@ -415,12 +423,12 @@ async function cargarBloques() {
         elemento.append(
           crearElemento(
             'span',
-            bloque.estado === 'libre' ? 'Libre' : 'Ocupado',
+            bloque.estado === 'ocupado' ? 'Ocupado' : horarioPasado ? 'Horario pasado' : 'Libre',
             'estado'
           )
         );
 
-        if (bloque.estado === 'libre' && puedeReservar()) {
+        if (bloque.estado === 'libre' && !horarioPasado && puedeReservar()) {
           const boton = crearElemento('button', 'Reservar');
 
           boton.type = 'button';
@@ -495,7 +503,7 @@ async function reservar(
 
   await Promise.all([
     cargarBloques(),
-    cargarMisReservas()
+    cargarListaReservas()
   ]);
 }
 
@@ -503,23 +511,25 @@ async function reservar(
 // MIS RESERVAS
 // ========================================
 
-async function cargarMisReservas() {
+async function cargarListaReservas() {
   const sesion = obtenerUsuario();
   if (!sesion) return;
 
   try {
-    const reservas = await solicitar<Reserva[]>('/reservations/me');
+    const verTodas = sesion.rol !== 'estudiante';
+    const reservas = await solicitar<Reserva[]>(verTodas ? '/reservations' : '/reservations/me');
     if (obtenerUsuario() !== sesion) return;
 
     if (reservas.length === 0) {
       listaMisReservas.replaceChildren(
-        crearElemento('li', 'No tienes reservas.', 'ayuda')
+        crearElemento('li', verTodas ? 'No hay reservas.' : 'No tienes reservas.', 'ayuda')
       );
       return;
     }
 
     listaMisReservas.replaceChildren(
       ...reservas.map((reserva) => {
+        const completada = reserva.estado === 'confirmada' && new Date(reserva.fin).getTime() <= Date.now();
         const elemento = crearElemento(
           'li',
           undefined,
@@ -535,14 +545,13 @@ async function cargarMisReservas() {
             'span',
             `${fechaCorta(reserva.inicio)} ${hora(reserva.inicio)} – ${hora(reserva.fin)} · ${lugar} · ${reserva.motivo}`
           ),
-          crearElemento('span', reserva.estado, 'estado')
+          crearElemento('span', completada ? 'Completada' : reserva.estado, 'estado')
         );
 
-        if (
-          puedeReservar() &&
-          reserva.estado === 'confirmada' &&
-          new Date(reserva.fin) > new Date()
-        ) {
+        const puedeCancelar = sesion.rol === 'administrador' ||
+          (sesion.rol === 'docente' && reserva.usuarioId === sesion.id);
+
+        if (reserva.estado === 'confirmada' && !completada && puedeCancelar) {
           const boton = crearElemento('button', 'Cancelar');
 
           boton.type = 'button';
@@ -595,6 +604,6 @@ async function cancelar(id: number) {
 
   await Promise.all([
     cargarBloques(),
-    cargarMisReservas()
+    cargarListaReservas()
   ]);
 }

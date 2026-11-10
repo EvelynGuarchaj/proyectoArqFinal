@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Simular el repositorio de ocupación
 vi.mock('../../src/repositorios/repositorioOcupacion', () => ({
-  obtenerEspaciosConReservaActual: vi.fn(),
+  obtenerEspaciosConReservasVigentes: vi.fn(),
 }));
 
 // Simular el servicio de caché
@@ -125,9 +125,32 @@ describe('armarRespuestaAhora', () => {
 // ========================================
 
 describe('servicioAhora.obtener', () => {
+  it('caduca la caché antes de que empiece la próxima reserva', async () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(ahora);
+      const proxima = {
+        ...espacios[0].reservas[0],
+        inicio: new Date(ahora.getTime() + 10_000),
+        fin: new Date(ahora.getTime() + 60_000),
+      };
+      vi.mocked(repositorioOcupacion.obtenerEspaciosConReservasVigentes)
+        .mockResolvedValue([{ ...espacios[0], reservas: [proxima] }] as never);
+
+      const respuesta = await servicioAhora.obtener();
+      expect(respuesta.datos.edificios[0].espacios[0].ocupado).toBe(false);
+      const ttl = vi.mocked(servicioCache.obtenerOGuardar).mock.lastCall?.[2];
+      expect(typeof ttl === 'function' && ttl()).toBe(10);
+      vi.setSystemTime(proxima.inicio);
+      expect(typeof ttl === 'function' && ttl()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('usa la clave cache:ahora y consulta el repositorio', async () => {
     vi.mocked(
-      repositorioOcupacion.obtenerEspaciosConReservaActual
+      repositorioOcupacion.obtenerEspaciosConReservasVigentes
     ).mockResolvedValue(espacios as never);
 
     const resultado = await servicioAhora.obtener();
@@ -136,11 +159,12 @@ describe('servicioAhora.obtener', () => {
       servicioCache.obtenerOGuardar
     ).toHaveBeenCalledWith(
       'cache:ahora',
+      expect.any(Function),
       expect.any(Function)
     );
 
     expect(
-      repositorioOcupacion.obtenerEspaciosConReservaActual
+      repositorioOcupacion.obtenerEspaciosConReservasVigentes
     ).toHaveBeenCalledWith(expect.any(Date));
 
     expect(resultado.cache).toBe('MISS');

@@ -86,6 +86,10 @@ export async function crear(usuarioId: number, datos: DatosCrearReserva): Promis
     throw new ErrorAplicacion(409, 'TRASLAPE', 'El espacio ya está reservado en ese horario');
   }
 
+  if (inicio.getTime() < Date.now()) {
+    throw new ErrorAplicacion(400, 'FUERA_DE_HORARIO', 'No puedes reservar un horario que ya comenzó');
+  }
+
   // 4. Crear (si llegan dos al mismo tiempo, la BD rechaza una y el repositorio la convierte en 409)
   const fila = await repositorioReservas.crear({
     espacioId: datos.espacioId,
@@ -106,6 +110,10 @@ export async function crear(usuarioId: number, datos: DatosCrearReserva): Promis
 
 export const listarEstudiantes = listarEstudiantesActivos;
 
+export async function listarTodas(): Promise<Reserva[]> {
+  return (await repositorioReservas.listarTodas()).map(aReservaPublica);
+}
+
 export async function listarMias(usuarioId: number, rol: Rol): Promise<Reserva[]> {
   const filas = await repositorioReservas.listarPorUsuario(usuarioId, rol === 'estudiante');
   return filas.map(aReservaPublica);
@@ -121,6 +129,10 @@ export async function cancelar(id: number, usuario: { id: number; rol: Rol }): P
   }
   if (fila.estado === 'cancelada') {
     return aReservaPublica(fila); // ya estaba cancelada: no se repite nada
+  }
+
+  if (fila.fin.getTime() <= Date.now()) {
+    throw new ErrorAplicacion(400, 'FUERA_DE_HORARIO', 'La reserva ya terminó');
   }
 
   const reserva = aReservaPublica(await repositorioReservas.cancelar(id));

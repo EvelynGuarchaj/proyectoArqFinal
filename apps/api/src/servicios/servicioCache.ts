@@ -6,7 +6,7 @@ import { clienteRedis } from '../config/redis';
 export async function obtenerOGuardar<T>(
   clave: string,
   generar: () => Promise<T>,
-  ttlSegundos = entorno.ttlCacheSegundos,
+  ttlSegundos: number | (() => number) = entorno.ttlCacheSegundos,
 ): Promise<{ datos: T; cache: 'HIT' | 'MISS' }> {
   let guardado: string | null = null;
   try {
@@ -23,8 +23,11 @@ export async function obtenerOGuardar<T>(
   // Si generar() lanza un error (por ejemplo 404), no se guarda nada
   const datos = await generar();
 
+  const ttl = typeof ttlSegundos === 'function' ? ttlSegundos() : ttlSegundos;
+  if (ttl <= 0) return { datos, cache: 'MISS' };
+
   try {
-    await clienteRedis.set(clave, JSON.stringify(datos), 'EX', ttlSegundos);
+    await clienteRedis.set(clave, JSON.stringify(datos), 'EX', ttl);
   } catch (error) {
     console.error('[cache] no se pudo guardar en Redis:', error);
   }

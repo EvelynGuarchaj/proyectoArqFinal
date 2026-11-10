@@ -4,6 +4,7 @@ import { solicitar } from './api';
 import { crearElemento, hora } from './formato';
 
 const INTERVALO_MS = 30_000;
+let consultando = false;
 const LLAVE = import.meta.env.VITE_LLAVE_API_PANTALLA;
 
 // Elementos de la pantalla
@@ -21,12 +22,15 @@ const mensaje = document.getElementById(
 
 // Consultar la ocupación actual
 async function actualizar() {
-  if (!cuerpoTabla || !horaActualizacion || !mensaje) {
+  if (consultando || !cuerpoTabla || !horaActualizacion || !mensaje) {
     return;
   }
 
+  consultando = true;
   try {
     const datos = await solicitar<RespuestaAhora>('/now', {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10_000),
       headers: {
         'X-API-Key': LLAVE
       }
@@ -65,7 +69,7 @@ async function actualizar() {
     cuerpoTabla.replaceChildren(...filas);
 
     horaActualizacion.textContent =
-      `Actualizado a las ${hora(datos.generadoEn)} · se refresca cada 30 s`;
+      `Última consulta: ${new Date().toLocaleTimeString('es-GT', { timeZone: 'America/Guatemala', hour12: false })} · cada 30 s`;
 
     mensaje.textContent = '';
 
@@ -77,6 +81,8 @@ async function actualizar() {
         : 'Error inesperado';
 
     mensaje.dataset.tipo = 'error';
+  } finally {
+    consultando = false;
   }
 }
 
@@ -85,3 +91,6 @@ void actualizar();
 
 // Actualización automática cada 30 segundos
 setInterval(() => void actualizar(), INTERVALO_MS);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) void actualizar();
+});

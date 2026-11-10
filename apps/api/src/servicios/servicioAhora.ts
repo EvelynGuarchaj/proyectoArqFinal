@@ -4,6 +4,7 @@ import type {
   RespuestaAhora
 } from '@reservalab/shared';
 
+import { entorno } from '../config/entorno';
 import { clavesCache } from '../config/clavesCache';
 import * as repositorioOcupacion from '../repositorios/repositorioOcupacion';
 import * as servicioCache from './servicioCache';
@@ -38,7 +39,7 @@ export function armarRespuestaAhora(
       porEdificio.set(espacio.edificio, grupo);
     }
 
-    const reserva = espacio.reservas[0];
+    const reserva = espacio.reservas.find(({ inicio, fin }) => inicio <= ahora && ahora < fin);
 
     grupo.espacios.push({
       espacioId: espacio.id,
@@ -66,15 +67,23 @@ export function armarRespuestaAhora(
 
 // Obtener la ocupación actual utilizando la caché
 export async function obtener() {
+  let siguienteCambio = Infinity;
   return servicioCache.obtenerOGuardar(
     clavesCache.ahora(),
     async () => {
       const ahora = new Date();
 
       const espacios =
-        await repositorioOcupacion.obtenerEspaciosConReservaActual(ahora);
+        await repositorioOcupacion.obtenerEspaciosConReservasVigentes(ahora);
 
+      for (const { reservas } of espacios) {
+        for (const { inicio, fin } of reservas) {
+          const cambio = inicio > ahora ? inicio : fin;
+          siguienteCambio = Math.min(siguienteCambio, cambio.getTime());
+        }
+      }
       return armarRespuestaAhora(espacios, ahora);
-    }
+    },
+    () => Math.min(entorno.ttlCacheSegundos, Math.floor((siguienteCambio - Date.now()) / 1000))
   );
 }
