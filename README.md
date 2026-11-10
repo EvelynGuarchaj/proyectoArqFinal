@@ -1,7 +1,7 @@
 # ReservaLab
 
-Sistema cliente-servidor para reservar laboratorios y salones de la facultad.
-Proyecto del curso Arquitectura de Sistemas I, sección D (UMES Xela).
+Sistema cliente-servidor para reservar laboratorios y salones de la facultad de Ingeniería Universidad Mesoamericana Quetzaltenango.
+Proyecto del curso Arquitectura de Sistemas I, sección D
 
 - **API REST** (Express 5 + Prisma 6 + PostgreSQL 16 + Redis 7) con autenticación JWT, roles, llaves API,
   caché con invalidación, límite de solicitudes y documentación OpenAPI.
@@ -20,14 +20,14 @@ La documentación de arquitectura y los ADR están en [`docs/arquitectura/`](doc
 ## Cómo levantar todo
 
 ```bash
-cp .env.example .env          # luego cambia SECRETO_JWT por un texto largo y aleatorio
+cp .env.example .env          # luego cambiar SECRETO_JWT por un texto largo y aleatorio
 docker compose up --build
 ```
 
 Esto levanta los 5 contenedores (`basedatos`, `cache`, `notificaciones`, `api`, `web`). Al arrancar, la API
-aplica las migraciones y carga la semilla sola.
+aplica las migraciones y carga la semilla sola
 
-Para empezar de cero (borra los datos): `docker compose down -v && docker compose up --build`.
+Para empezar de cero (borrar los datos): `docker compose down -v && docker compose up --build`.
 
 ### URLs
 
@@ -55,7 +55,7 @@ La semilla también crea los espacios `Laboratorio 1` y `Laboratorio 2` (edifici
 
 | Nombre | Llave | Permisos |
 |---|---|---|
-| Pantalla edificio A | `rl_live_pantalla_demo_0123456789abcdef` | `read:now`, `read:spaces` |
+| Pantalla edificio D | `rl_live_pantalla_demo_0123456789abcdef` | `read:now`, `read:spaces` |
 
 ```bash
 curl -H "X-API-Key: rl_live_pantalla_demo_0123456789abcdef" http://localhost:3000/api/v1/now
