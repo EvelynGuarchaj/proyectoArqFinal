@@ -8,6 +8,7 @@ import { rutasEspacios } from './rutas/rutasEspacios';
 import { rutasReservas } from './rutas/rutasReservas';
 import { rutasLlavesApi } from './rutas/rutasLlavesApi';
 import { rutasAhora } from './rutas/rutasAhora';
+import { rutasUsuarios } from './rutas/rutasUsuarios';
 import { rutasSalud } from './rutas/rutasSalud';
 import { manejadorErrores } from './middleware/manejadorErrores';
 
@@ -24,6 +25,7 @@ export function crearApp() {
   v1.use('/api-keys', rutasLlavesApi);
   v1.use('/now', rutasAhora);
   v1.use('/health', rutasSalud);
+  v1.use('/users', rutasUsuarios);
   app.use('/api/v1', v1);
 
   app.use((req, res) => {

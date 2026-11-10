@@ -6,6 +6,7 @@ import { ErrorAplicacion } from '../utilidades/errores';
 export interface DatosNuevaReserva {
   espacioId: number;
   usuarioId: number;
+  estudianteId?: number;
   inicio: Date;
   fin: Date;
   motivo: string;
@@ -36,7 +37,20 @@ export async function existeTraslape(espacioId: number, inicio: Date, fin: Date)
 
 export async function crear(datos: DatosNuevaReserva) {
   try {
-    return await prisma.reserva.create({ data: datos });
+    const estudianteId = datos.estudianteId;
+    if (estudianteId === undefined) return await prisma.reserva.create({ data: datos });
+
+    return await prisma.$transaction(async (tx) => {
+      const estudiantes = await tx.$queryRaw<{ id: number }[]>`
+        SELECT id FROM usuarios
+        WHERE id = ${estudianteId} AND activo AND rol = 'estudiante'
+        FOR SHARE
+      `;
+      if (estudiantes.length === 0) {
+        throw new ErrorAplicacion(400, 'VALIDACION', 'Selecciona un estudiante activo');
+      }
+      return tx.reserva.create({ data: datos });
+    });
   } catch (error) {
     if (esErrorDeTraslape(error)) {
       throw new ErrorAplicacion(409, 'TRASLAPE', 'El espacio ya está reservado en ese horario');
@@ -57,9 +71,12 @@ export function listarConfirmadasEnRango(espacioId: number, desde: Date, hasta: 
   });
 }
 
-export function listarPorUsuario(usuarioId: number) {
+export function listarPorUsuario(usuarioId: number, esEstudiante: boolean) {
+  const where = esEstudiante
+    ? { OR: [{ estudianteId: usuarioId }, { usuarioId, estudianteId: null }] }
+    : { usuarioId };
   return prisma.reserva.findMany({
-    where: { usuarioId },
+    where,
     include: { espacio: { select: { nombre: true, edificio: true } } },
     orderBy: { inicio: 'asc' },
   });

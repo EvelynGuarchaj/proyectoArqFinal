@@ -47,7 +47,69 @@
           <p id="mensaje-login" class="mensaje" role="alert"></p>
         </form>
 
-        <p class="ayuda">Prueba: docente@reservalab.edu / Docente1234</p>
+        <p class="ayuda">Prueba: yaniz@reservalab.edu / Docente1234</p>
+      </section>
+
+      <section id="seccion-administracion" class="tarjeta" hidden>
+        <h2>Administrar espacios</h2>
+        <form id="formulario-espacio">
+          <fieldset id="campos-espacio">
+            <legend>Agregar o editar un laboratorio o salón</legend>
+            <label>
+              Espacio a editar
+              <select id="selector-edicion"></select>
+            </label>
+            <div class="filtros">
+              <label>Nombre <input name="nombre" required minlength="2" maxlength="100" /></label>
+              <label>Edificio <input name="edificio" required maxlength="50" /></label>
+              <label>Capacidad <input name="capacidad" type="number" required min="1" /></label>
+              <label>
+                Tipo
+                <select name="tipo">
+                  <option value="laboratorio">Laboratorio</option>
+                  <option value="salon">Salón</option>
+                </select>
+              </label>
+              <label>Apertura (hora) <input name="horaApertura" type="number" required min="0" max="23" value="7" /></label>
+              <label>Cierre (hora) <input name="horaCierre" type="number" required min="1" max="24" value="21" /></label>
+            </div>
+            <button type="submit">Guardar espacio</button>
+            <button id="boton-desactivar-espacio" type="button" hidden>Desactivar espacio</button>
+          </fieldset>
+          <p id="mensaje-administracion" class="mensaje" role="status"></p>
+        </form>
+      </section>
+
+      <section id="seccion-usuarios" class="tarjeta" hidden>
+        <h2>Gestionar usuarios</h2>
+        <form id="formulario-usuario">
+          <fieldset>
+            <legend>Crear o editar una cuenta</legend>
+            <label>
+              Usuario
+              <select name="usuario"></select>
+            </label>
+            <div class="filtros">
+              <label>Nombre <input name="nombre" required minlength="2" maxlength="100" /></label>
+              <label>Correo <input name="correo" type="email" required /></label>
+              <label>
+                Rol
+                <select name="rol">
+                  <option value="estudiante">Estudiante</option>
+                  <option value="docente">Docente</option>
+                  <option value="administrador">Administrador</option>
+                </select>
+              </label>
+              <label id="contrasena-nueva">
+                Contraseña inicial
+                <input name="contrasena" type="password" minlength="8" maxlength="72" autocomplete="new-password" />
+              </label>
+            </div>
+            <button type="submit">Guardar usuario</button>
+            <button id="boton-desactivar-usuario" type="button" hidden>Desactivar usuario</button>
+          </fieldset>
+          <p id="mensaje-usuarios" class="mensaje" role="status"></p>
+        </form>
       </section>
 
       <section id="seccion-reservas" hidden>
@@ -65,10 +127,11 @@
               <input id="selector-fecha" type="date" />
             </label>
 
-            <label>
+            <label id="etiqueta-motivo">
               Motivo
               <input id="campo-motivo" type="text" value="Clase" maxlength="200" />
             </label>
+
           </div>
 
           <p id="mensaje-reservas" class="mensaje" role="status"></p>
@@ -81,6 +144,26 @@
         </div>
       </section>
     </main>
+
+    <dialog id="dialogo-reserva" class="tarjeta" aria-labelledby="titulo-dialogo-reserva">
+      <form id="formulario-reserva" method="dialog">
+        <h2 id="titulo-dialogo-reserva">Confirmar reserva</h2>
+        <p id="horario-reserva" aria-live="polite"></p>
+        <label>
+          Reservar hasta
+          <select id="selector-fin-reserva" required></select>
+        </label>
+        <label>
+          Estudiante vinculado (opcional)
+          <select id="selector-estudiante"></select>
+        </label>
+        <p id="mensaje-estudiantes" class="ayuda" role="status"></p>
+        <div class="acciones-dialogo">
+          <button id="cancelar-dialogo-reserva" type="button">Cancelar</button>
+          <button id="confirmar-reserva" type="submit">Confirmar reserva</button>
+        </div>
+      </form>
+    </dialog>
 
     <script type="module" src="/src/principal.ts"></script>
   </body>

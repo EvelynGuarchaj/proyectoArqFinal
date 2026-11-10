@@ -32,6 +32,11 @@ export const esquemaRegistro = z.object({
   contrasena: z.string().min(8).max(72),
 });
 
+export const esquemaCrearUsuario = esquemaRegistro.extend({ rol: z.enum(ROLES) });
+export const esquemaEditarUsuario = esquemaCrearUsuario.omit({ contrasena: true }).partial();
+export type DatosCrearUsuario = z.infer<typeof esquemaCrearUsuario>;
+export type DatosEditarUsuario = z.infer<typeof esquemaEditarUsuario>;
+
 export const esquemaLogin = z.object({
   correo: z.string().email(),
   contrasena: z.string().min(1),
@@ -69,6 +74,7 @@ export const esquemaConsultaDisponibilidad = z.object({
 
 export const esquemaCrearReserva = z.object({
   espacioId: z.number().int().positive(),
+  estudianteId: z.number().int().positive().optional(),
   inicio: z.string().datetime({ offset: true }),
   fin: z.string().datetime({ offset: true }),
   motivo: z.string().min(3).max(200),
@@ -95,6 +101,8 @@ export type DatosCrearLlaveApi = z.infer<typeof esquemaCrearLlaveApi>;
 
 // ===== Tipos de respuesta (lo que devuelve la API) =====
 export interface UsuarioPublico { id: number; nombre: string; correo: string; rol: Rol; }
+export type EstudianteSeleccionable = Pick<UsuarioPublico, 'id' | 'nombre'>;
+export interface UsuarioAdministrado extends UsuarioPublico { activo: boolean; }
 export interface RespuestaLogin { tokenAcceso: string; tokenRefresco: string; usuario: UsuarioPublico; }
 export interface RespuestaRefresco { tokenAcceso: string; }
 
@@ -105,6 +113,7 @@ export interface Espacio {
 
 export interface Reserva {
   id: number; espacioId: number; usuarioId: number;
+  estudianteId?: number;
   inicio: string; fin: string; // ISO 8601
   motivo: string; estado: EstadoReserva;
   espacio?: { nombre: string; edificio: string };

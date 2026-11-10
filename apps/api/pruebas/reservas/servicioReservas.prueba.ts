@@ -39,7 +39,7 @@ const datosValidos = {
 };
 
 const filaReserva = {
-  id: 99, espacioId: 5, usuarioId: 2,
+  id: 99, espacioId: 5, usuarioId: 2, estudianteId: null,
   inicio: new Date(datosValidos.inicio), fin: new Date(datosValidos.fin),
   motivo: 'Clase de prueba', estado: 'confirmada' as const, creadaEn: new Date(),
 };
@@ -150,7 +150,7 @@ describe('servicioReservas.listarMias', () => {
     vi.mocked(repositorioReservas.listarPorUsuario).mockResolvedValue([
       { ...filaReserva, espacio: { nombre: 'Lab 5', edificio: 'A' } },
     ]);
-    const reservas = await servicioReservas.listarMias(2);
+    const reservas = await servicioReservas.listarMias(2, 'docente');
     expect(reservas).toEqual([
       expect.objectContaining({ id: 99, inicio: '2030-01-15T14:00:00.000Z', espacio: { nombre: 'Lab 5', edificio: 'A' } }),
     ]);

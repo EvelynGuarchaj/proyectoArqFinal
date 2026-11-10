@@ -3,6 +3,7 @@ import { rutasDocSalud } from './salud';
 import { rutasDocEspacios } from './espacios';
 import { rutasDocReservas } from './reservas';
 import { rutasDocLlavesApi } from './llavesApi';
+import { rutasDocUsuarios } from './usuarios';
 import { rutasDocAhora } from './ahora';
 
 export const especificacionOpenApi = {
@@ -26,5 +27,6 @@ export const especificacionOpenApi = {
     ...rutasDocReservas,
     ...rutasDocLlavesApi,
     ...rutasDocAhora,
+    ...rutasDocUsuarios,
   },
 };

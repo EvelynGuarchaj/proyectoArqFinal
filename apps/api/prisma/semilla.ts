@@ -1,4 +1,4 @@
-import { PrismaClient, type Rol, type TipoEspacio } from '@prisma/client';
+import { Prisma, PrismaClient, type Rol, type TipoEspacio } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { ZONA_HORARIA } from '@reservalab/shared';
 import { hashSha256 } from '../src/utilidades/hash';
@@ -38,52 +38,58 @@ function fechaManana(): string {
 }
 
 async function main() {
-  for (const u of usuarios) {
-    const hashContrasena = await bcrypt.hash(u.contrasena, COSTO_BCRYPT);
-    await prisma.usuario.upsert({
-      where: { correo: u.correo },
-      update: { nombre: u.nombre, hashContrasena, rol: u.rol },
-      create: { nombre: u.nombre, correo: u.correo, hashContrasena, rol: u.rol },
+  const cargarSoloSiVacia = process.argv.includes('--si-vacia');
+  const cargada = await prisma.$transaction(async (tx) => {
+    if (cargarSoloSiVacia && await tx.usuario.count() > 0) return false;
+
+    for (const u of usuarios) {
+      const hashContrasena = await bcrypt.hash(u.contrasena, COSTO_BCRYPT);
+      await tx.usuario.upsert({
+        where: { correo: u.correo },
+        update: { nombre: u.nombre, hashContrasena, rol: u.rol },
+        create: { nombre: u.nombre, correo: u.correo, hashContrasena, rol: u.rol },
+      });
+    }
+
+    for (const e of espacios) {
+      await tx.espacio.upsert({
+        where: { nombre: e.nombre },
+        update: { ...e, horaApertura: 7, horaCierre: 21, activo: true },
+        create: { ...e, horaApertura: 7, horaCierre: 21 },
+      });
+    }
+
+    const hashLlave = hashSha256(LLAVE_DEMO);
+    await tx.llaveApi.upsert({
+      where: { hashLlave },
+      update: { nombre: NOMBRE_LLAVE_DEMO, permisos: ['read:now', 'read:spaces'], revocada: false },
+      create: {
+        nombre: NOMBRE_LLAVE_DEMO,
+        prefijo: LLAVE_DEMO.slice(0, 12), // 'rl_live_pant'
+        hashLlave,
+        permisos: ['read:now', 'read:spaces'],
+      },
     });
-  }
 
-  for (const e of espacios) {
-    await prisma.espacio.upsert({
-      where: { nombre: e.nombre },
-      update: { ...e, horaApertura: 7, horaCierre: 21, activo: true },
-      create: { ...e, horaApertura: 7, horaCierre: 21 },
+    // Reserva de prueba: solo si ese horario no está ocupado ya
+    const docente = await tx.usuario.findUniqueOrThrow({ where: { correo: 'yaniz@reservalab.edu' } });
+    const laboratorio = await tx.espacio.findUniqueOrThrow({ where: { nombre: 'Laboratorio de Computación 1' } });
+    const fecha = fechaManana();
+    const inicio = new Date(`${fecha}T08:00:00${ZONA_HORARIA}`);
+    const fin = new Date(`${fecha}T10:00:00${ZONA_HORARIA}`);
+
+    const existente = await tx.reserva.findFirst({
+      where: { espacioId: laboratorio.id, estado: 'confirmada', inicio: { lt: fin }, fin: { gt: inicio } },
     });
-  }
+    if (!existente) {
+      await tx.reserva.create({
+        data: { espacioId: laboratorio.id, usuarioId: docente.id, inicio, fin, motivo: 'Clase de prueba' },
+      });
+    }
 
-  const hashLlave = hashSha256(LLAVE_DEMO);
-  await prisma.llaveApi.upsert({
-    where: { hashLlave },
-    update: { nombre: NOMBRE_LLAVE_DEMO, permisos: ['read:now', 'read:spaces'], revocada: false },
-    create: {
-      nombre: NOMBRE_LLAVE_DEMO,
-      prefijo: LLAVE_DEMO.slice(0, 12), // 'rl_live_pant'
-      hashLlave,
-      permisos: ['read:now', 'read:spaces'],
-    },
-  });
-
-  // Reserva de prueba: solo si ese horario no está ocupado ya
-  const docente = await prisma.usuario.findUniqueOrThrow({ where: { correo: 'yaniz@reservalab.edu' } });
-  const laboratorio = await prisma.espacio.findUniqueOrThrow({ where: { nombre: 'Laboratorio de Computación 1' } });
-  const fecha = fechaManana();
-  const inicio = new Date(`${fecha}T08:00:00${ZONA_HORARIA}`);
-  const fin = new Date(`${fecha}T10:00:00${ZONA_HORARIA}`);
-
-  const existente = await prisma.reserva.findFirst({
-    where: { espacioId: laboratorio.id, estado: 'confirmada', inicio: { lt: fin }, fin: { gt: inicio } },
-  });
-  if (!existente) {
-    await prisma.reserva.create({
-      data: { espacioId: laboratorio.id, usuarioId: docente.id, inicio, fin, motivo: 'Clase de prueba' },
-    });
-  }
-
-  console.log('Semilla cargada');
+    return true;
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  console.log(cargada ? 'Semilla cargada' : 'La base ya contiene usuarios');
 }
 
 main()

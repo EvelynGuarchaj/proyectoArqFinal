@@ -34,6 +34,10 @@ function errorTokenInvalido() {
 
 // RF-01
 export async function registrar(datos: DatosRegistro): Promise<UsuarioPublico> {
+  return crearUsuario(datos, 'estudiante');
+}
+
+export async function crearUsuario(datos: DatosRegistro, rol: Rol): Promise<UsuarioPublico> {
   const existente = await repositorioUsuarios.buscarPorCorreo(datos.correo);
   if (existente) {
     throw new ErrorAplicacion(409, 'DUPLICADO', 'Ya existe un usuario con ese correo');
@@ -44,7 +48,7 @@ export async function registrar(datos: DatosRegistro): Promise<UsuarioPublico> {
     nombre: datos.nombre,
     correo: datos.correo,
     hashContrasena,
-    rol: 'estudiante',
+    rol,
   });
   return aUsuarioPublico(usuario);
 }
@@ -53,7 +57,7 @@ export async function registrar(datos: DatosRegistro): Promise<UsuarioPublico> {
 export async function iniciarSesion(datos: DatosLogin): Promise<RespuestaLogin> {
   const usuario = await repositorioUsuarios.buscarPorCorreo(datos.correo);
   const contrasenaValida = usuario ? await bcrypt.compare(datos.contrasena, usuario.hashContrasena) : false;
-  if (!usuario || !contrasenaValida) {
+  if (!usuario?.activo || !contrasenaValida) {
     // Mismo mensaje para correo o contraseña incorrectos (no revela cuál falló)
     throw new ErrorAplicacion(401, 'CREDENCIALES_INVALIDAS', 'Correo o contraseña incorrectos');
   }
@@ -72,7 +76,7 @@ export async function iniciarSesion(datos: DatosLogin): Promise<RespuestaLogin> 
 // RF-03
 export async function refrescar(tokenRefresco: string): Promise<RespuestaRefresco> {
   const registro = await repositorioTokensRefresco.buscarPorHash(hashSha256(tokenRefresco));
-  if (!registro || registro.revocado || registro.expiraEn.getTime() <= Date.now()) {
+  if (!registro?.usuario.activo || registro.revocado || registro.expiraEn.getTime() <= Date.now()) {
     throw errorTokenInvalido();
   }
   return { tokenAcceso: firmarTokenAcceso(registro.usuario) };

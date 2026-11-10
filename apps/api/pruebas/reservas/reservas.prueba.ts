@@ -1,7 +1,9 @@
 // DUEÑA: B — Pruebas de integración de reservas (necesita `pnpm servicios` y la semilla)
+import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { app, obtenerToken } from '../ayudantes';
+import { app, obtenerToken, USUARIOS_PRUEBA } from '../ayudantes';
+import { prisma } from '../../src/config/baseDatos';
 
 const FECHA = '2030-01-15';
 const hora = (h: string) => `${FECHA}T${h}:00-06:00`;
@@ -119,6 +121,50 @@ describe('GET /reservations/me y DELETE /reservations/:id', () => {
 
     const otraVez = await reservar(tokenDocente, '18:00', '19:00');
     expect(otraVez.status).toBe(201);
+  });
+
+  it('muestra al estudiante solo su reserva vinculada y conserva al docente como responsable', async () => {
+    const docente = `Bearer ${tokenDocente}`;
+    const estudiante = `Bearer ${tokenEstudiante}`;
+    const lista = await request(app).get('/api/v1/reservations/students').set('Authorization', docente).expect(200);
+    const { id: estudianteId, nombre } = await prisma.usuario.findUniqueOrThrow({
+      where: { correo: USUARIOS_PRUEBA.estudiante.correo },
+      select: { id: true, nombre: true },
+    });
+    expect(lista.body).toContainEqual({ id: estudianteId, nombre });
+    await request(app).get('/api/v1/reservations/students').set('Authorization', estudiante).expect(403);
+
+    const otraCuenta = {
+      nombre: 'Otro estudiante',
+      correo: `otra-reserva-${randomUUID()}@reservalab.edu`,
+      contrasena: 'PruebaEstudiante123',
+    };
+    const otro = await request(app).post('/api/v1/auth/register').send(otraCuenta).expect(201);
+
+    try {
+      const login = await request(app).post('/api/v1/auth/login').send(otraCuenta).expect(200);
+      const datos = { espacioId, inicio: hora('19:00'), fin: hora('20:00'), motivo: 'Reserva vinculada' };
+      await request(app).post('/api/v1/reservations').set('Authorization', docente)
+        .send({ ...datos, estudianteId: 999999 }).expect(400);
+      const creada = await request(app).post('/api/v1/reservations').set('Authorization', docente)
+        .send({ ...datos, estudianteId }).expect(201);
+      expect(creada.body.estudianteId).toBe(estudianteId);
+      expect(creada.body.usuarioId).not.toBe(estudianteId);
+
+      const propias = (token: string) => request(app).get('/api/v1/reservations/me').set('Authorization', token).expect(200);
+      const asignadas = await propias(estudiante);
+      expect(asignadas.body.filter((r: { espacioId: number }) => r.espacioId === espacioId))
+        .toEqual([expect.objectContaining({ id: creada.body.id })]);
+      expect((await propias(`Bearer ${login.body.tokenAcceso}`)).body)
+        .not.toContainEqual(expect.objectContaining({ id: creada.body.id }));
+      expect((await propias(docente)).body).toContainEqual(expect.objectContaining({ id: creada.body.id }));
+
+      const cancelar = (token: string) => request(app).delete(`/api/v1/reservations/${creada.body.id}`).set('Authorization', token);
+      await cancelar(estudiante).expect(403);
+      await cancelar(docente).expect(200);
+    } finally {
+      await prisma.usuario.delete({ where: { id: otro.body.id } });
+    }
   });
 
   it('cancelar una reserva que no existe da 404', async () => {

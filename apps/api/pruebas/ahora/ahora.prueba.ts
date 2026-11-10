@@ -49,18 +49,18 @@ describe('RF-11 GET /now', () => {
       true
     );
 
-    const edificioA = respuesta.body.edificios.find(
+    const edificioD = respuesta.body.edificios.find(
       (edificio: { edificio: string }) =>
-        edificio.edificio === 'A'
+        edificio.edificio === 'D'
     );
 
-    expect(edificioA).toBeDefined();
+    expect(edificioD).toBeDefined();
 
-    expect(edificioA.espacios[0]).toHaveProperty(
+    expect(edificioD.espacios[0]).toHaveProperty(
       'ocupado'
     );
 
-    expect(edificioA.espacios[0]).toHaveProperty(
+    expect(edificioD.espacios[0]).toHaveProperty(
       'reservaActual'
     );
   });

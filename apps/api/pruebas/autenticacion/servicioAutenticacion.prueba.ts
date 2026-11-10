@@ -27,6 +27,7 @@ const usuarioSemilla = {
   hashContrasena: bcrypt.hashSync('Correcta1234', 4),
   rol: 'estudiante' as const,
   creadoEn: new Date(),
+  activo: true,
 };
 
 function registroToken(cambios: Partial<{ revocado: boolean; expiraEn: Date; usuarioId: number }> = {}) {

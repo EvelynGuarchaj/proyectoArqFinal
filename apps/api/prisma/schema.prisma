@@ -29,8 +29,10 @@ model Usuario {
   correo         String          @unique
   hashContrasena String
   rol            Rol             @default(estudiante)
+  activo         Boolean         @default(true)
   creadoEn       DateTime        @default(now())
-  reservas       Reserva[]
+  reservas       Reserva[]       @relation("ResponsableReserva")
+  reservasAsignadas Reserva[]    @relation("EstudianteReserva")
   tokensRefresco TokenRefresco[]
 
   @@map("usuarios")
@@ -67,15 +69,18 @@ model Reserva {
   id        Int           @id @default(autoincrement())
   espacioId Int
   usuarioId Int
+  estudianteId Int?
   inicio    DateTime      @db.Timestamptz(3)
   fin       DateTime      @db.Timestamptz(3)
   motivo    String
   estado    EstadoReserva @default(confirmada)
   creadaEn  DateTime      @default(now())
   espacio   Espacio       @relation(fields: [espacioId], references: [id])
-  usuario   Usuario       @relation(fields: [usuarioId], references: [id])
+  usuario   Usuario  @relation("ResponsableReserva", fields: [usuarioId], references: [id])
+  estudiante Usuario? @relation("EstudianteReserva", fields: [estudianteId], references: [id], onDelete: SetNull)
 
   @@index([espacioId, inicio])
+  @@index([estudianteId])
   @@map("reservas")
 }
 

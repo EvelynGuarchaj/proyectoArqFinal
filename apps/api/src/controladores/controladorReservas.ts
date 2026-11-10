@@ -9,9 +9,13 @@ export async function crear(req: Request, res: Response) {
   res.status(201).json(reserva);
 }
 
+export async function listarEstudiantes(req: Request, res: Response) {
+  res.json(await servicioReservas.listarEstudiantes());
+}
+
 // RF-09 GET /reservations/me
 export async function listarMias(req: Request, res: Response) {
-  const reservas = await servicioReservas.listarMias(req.usuario!.id);
+  const reservas = await servicioReservas.listarMias(req.usuario!.id, req.usuario!.rol);
   res.status(200).json(reservas);
 }
 

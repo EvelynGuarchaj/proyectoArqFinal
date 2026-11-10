@@ -1,15 +1,14 @@
 import type { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
-import type { Rol } from '@reservalab/shared';
+import { buscarCuentaActiva } from '../repositorios/repositorioUsuarios';
 import { entorno } from '../config/entorno';
 import { ErrorAplicacion } from '../utilidades/errores';
 
 interface ContenidoToken {
   sub: string;
-  rol: Rol;
 }
 
-export const autenticarJwt: RequestHandler = (req, res, next) => {
+export const autenticarJwt: RequestHandler = async (req, res, next) => {
   const encabezado = req.headers.authorization;
   if (!encabezado?.startsWith('Bearer ')) {
     throw new ErrorAplicacion(401, 'NO_AUTENTICADO', 'Falta el token de acceso');
@@ -22,6 +21,11 @@ export const autenticarJwt: RequestHandler = (req, res, next) => {
     throw new ErrorAplicacion(401, 'TOKEN_INVALIDO', 'El token de acceso es inválido o está vencido');
   }
 
-  req.usuario = { id: Number(contenido.sub), rol: contenido.rol };
+  const id = Number(contenido.sub);
+  const cuenta = Number.isSafeInteger(id) && id > 0 ? await buscarCuentaActiva(id) : null;
+  if (!cuenta) {
+    throw new ErrorAplicacion(401, 'TOKEN_INVALIDO', 'El token de acceso es inválido o está vencido');
+  }
+  req.usuario = cuenta;
   next();
 };

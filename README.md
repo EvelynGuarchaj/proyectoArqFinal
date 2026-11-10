@@ -25,7 +25,7 @@ docker compose up --build
 ```
 
 Esto levanta los 5 contenedores (`basedatos`, `cache`, `notificaciones`, `api`, `web`). Al arrancar, la API
-aplica las migraciones y carga la semilla sola
+aplica las migraciones y carga los datos de prueba si la base aún no tiene usuarios
 
 Para empezar de cero (borrar los datos): `docker compose down -v && docker compose up --build`.
 

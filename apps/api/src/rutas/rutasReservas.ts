@@ -19,6 +19,8 @@ rutasReservas.post(
   controladorReservas.crear,
 );
 
+rutasReservas.get('/students', autenticarJwt, requerirRol('docente', 'administrador'), controladorReservas.listarEstudiantes);
+
 // RF-09
 rutasReservas.get('/me', autenticarJwt, controladorReservas.listarMias);
 
@@ -26,6 +28,7 @@ rutasReservas.get('/me', autenticarJwt, controladorReservas.listarMias);
 rutasReservas.delete(
   '/:id',
   autenticarJwt,
+  requerirRol('docente', 'administrador'),
   validar(esquemaParametroId, 'params'),
   controladorReservas.cancelar,
 );

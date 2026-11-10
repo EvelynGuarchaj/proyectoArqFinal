@@ -13,4 +13,4 @@ RUN pnpm --filter api exec prisma generate
 EXPOSE 3000
 
 # Al arrancar: aplicar migraciones, cargar la semilla y levantar la API
-CMD ["sh", "-c", "pnpm --filter api exec prisma migrate deploy && pnpm --filter api exec prisma db seed && pnpm --filter api start"]
+CMD ["sh", "-c", "pnpm --filter api exec prisma migrate deploy && pnpm --filter api exec prisma db seed -- --si-vacia && pnpm --filter api start"]

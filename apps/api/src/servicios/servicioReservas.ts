@@ -5,6 +5,7 @@ import * as clienteNotificaciones from '../clientes/clienteNotificaciones';
 import { clavesCache, patronesCache } from '../config/clavesCache';
 import * as repositorioEspacios from '../repositorios/repositorioEspacios';
 import * as repositorioReservas from '../repositorios/repositorioReservas';
+import { listarEstudiantesActivos } from '../repositorios/repositorioUsuarios';
 import { ErrorAplicacion } from '../utilidades/errores';
 import * as servicioCache from './servicioCache';
 import { fechaLocal, inicioDelDia } from './servicioDisponibilidad';
@@ -15,6 +16,7 @@ interface FilaReserva {
   id: number;
   espacioId: number;
   usuarioId: number;
+  estudianteId?: number | null;
   inicio: Date;
   fin: Date;
   motivo: string;
@@ -27,6 +29,7 @@ function aReservaPublica(fila: FilaReserva): Reserva {
     id: fila.id,
     espacioId: fila.espacioId,
     usuarioId: fila.usuarioId,
+    ...(fila.estudianteId != null ? { estudianteId: fila.estudianteId } : {}),
     inicio: fila.inicio.toISOString(),
     fin: fila.fin.toISOString(),
     motivo: fila.motivo,
@@ -90,6 +93,7 @@ export async function crear(usuarioId: number, datos: DatosCrearReserva): Promis
     inicio,
     fin,
     motivo: datos.motivo,
+    ...(datos.estudianteId !== undefined ? { estudianteId: datos.estudianteId } : {}),
   });
   const reserva = aReservaPublica(fila);
 
@@ -100,8 +104,10 @@ export async function crear(usuarioId: number, datos: DatosCrearReserva): Promis
   return reserva;
 }
 
-export async function listarMias(usuarioId: number): Promise<Reserva[]> {
-  const filas = await repositorioReservas.listarPorUsuario(usuarioId);
+export const listarEstudiantes = listarEstudiantesActivos;
+
+export async function listarMias(usuarioId: number, rol: Rol): Promise<Reserva[]> {
+  const filas = await repositorioReservas.listarPorUsuario(usuarioId, rol === 'estudiante');
   return filas.map(aReservaPublica);
 }
 
