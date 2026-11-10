@@ -10,7 +10,7 @@ Proyecto del curso Arquitectura de Sistemas I, sección D
 - **CLI de administrador** para crear espacios y administrar llaves API.
 - **Servicio de notificaciones** simulado con Mockoon.
 
-La documentación de arquitectura y los ADR están en [`docs/arquitectura/`](docs/arquitectura/README.md).
+La documentación de arquitectura y los ADR están en [`docs/arquitectura/`](docs/).
 
 ## Requisitos
 
