@@ -1,8 +1,6 @@
 # ADR 0008 — Límite de solicitudes con ventana fija en Redis
 
 - **Estado:** aceptada
-- **Fecha:** 2026-11-08
-- **Responsable:** Integrante C
 
 ## Contexto
 
