@@ -152,4 +152,4 @@ Pendiente.
 
 ## Uso de IA
 
-- Integrante A: Claude Code para generar la estructura, la configuración, la autenticación, las pruebas y borradores de la documentación, revisados por mí.
+- Integrante A: Claude Code para generar diagramas y semillas de prueba
