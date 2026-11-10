@@ -42,14 +42,29 @@ Para empezar de cero (borrar los datos): `docker compose down -v && docker compo
 
 ### Usuarios de prueba (semilla)
 
-| Rol | Correo | Contraseña |
-|---|---|---|
-| Administrador | `admin@reservalab.edu` | `Admin1234` |
-| Docente | `docente@reservalab.edu` | `Docente1234` |
-| Estudiante | `estudiante@reservalab.edu` | `Estudiante1234` |
+| Rol | Nombre | Correo | Contraseña |
+|---|---|---|---|
+| Administrador | Angela | `angela@reservalab.edu` | `Admin1234` |
+| Docente | Yaniz | `yaniz@reservalab.edu` | `Docente1234` |
+| Estudiante | Ana | `ana@reservalab.edu` | `Estudiante1234` |
 
-La semilla también crea los espacios `Laboratorio 1` y `Laboratorio 2` (edificio A), `Salon 101` y
-`Salon 102` (edificio B), todos de 7 a 21 h, y una reserva del docente en `Laboratorio 1` mañana de 08:00 a 10:00.
+### Espacios (semilla)
+
+Los 9 laboratorios del **edificio D**, todos de 7 a 21 h:
+
+| Laboratorio | Capacidad |
+|---|---|
+| Laboratorio de Electrónica | 25 |
+| Laboratorio de Telecomunicaciones | 25 |
+| Laboratorio de Electricidad | 25 |
+| Laboratorio de Física | 30 |
+| Laboratorio de Civil | 30 |
+| Laboratorio de Computación 1 | 30 |
+| Laboratorio de Computación 2 | 30 |
+| Laboratorio de Computación 3 | 30 |
+| Laboratorio de Dibujo | 35 |
+
+También crea una reserva de Yaniz (docente) en el `Laboratorio de Computación 1` mañana de 08:00 a 10:00.
 
 ### Llave API demo
 
@@ -78,7 +93,7 @@ pnpm --filter web dev              # interfaz web en http://localhost:5173
 CLI de administrador (ejemplo):
 
 ```bash
-pnpm --filter cli cli crear-llave --correo admin@reservalab.edu --contrasena Admin1234 \
+pnpm --filter cli cli crear-llave --correo angela@reservalab.edu --contrasena Admin1234 \
   --nombre "Pantalla edificio B" --permisos read:now,read:spaces
 ```
 

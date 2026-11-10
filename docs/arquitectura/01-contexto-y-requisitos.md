@@ -2,7 +2,9 @@
 
 ## 1.1 Problema
 
-La facultad tiene laboratorios y salones que comparten docentes de distintos cursos. Hoy las reservas se
+La facultad tiene laboratorios y salones que comparten docentes de distintos cursos. Por ejemplo, el
+**edificio D** tiene 9 laboratorios: Electrónica, Telecomunicaciones, Electricidad, Física, Civil,
+Computación 1, 2 y 3, y Dibujo. Hoy las reservas se
 coordinan de forma manual (mensajes, hojas de cálculo o directamente con la secretaría). Esto provoca:
 
 - **Choques de horario**: dos docentes reservan el mismo espacio a la misma hora.

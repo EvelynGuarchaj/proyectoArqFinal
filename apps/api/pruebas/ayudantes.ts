@@ -5,9 +5,9 @@ export const app = crearApp();
 
 // Usuarios de la semilla (sección 3.10)
 export const USUARIOS_PRUEBA = {
-  administrador: { correo: 'admin@reservalab.edu', contrasena: 'Admin1234' },
-  docente: { correo: 'docente@reservalab.edu', contrasena: 'Docente1234' },
-  estudiante: { correo: 'estudiante@reservalab.edu', contrasena: 'Estudiante1234' },
+  administrador: { correo: 'angela@reservalab.edu', contrasena: 'Admin1234' },
+  docente: { correo: 'yaniz@reservalab.edu', contrasena: 'Docente1234' },
+  estudiante: { correo: 'ana@reservalab.edu', contrasena: 'Estudiante1234' },
 };
 
 export const LLAVE_PANTALLA = 'rl_live_pantalla_demo_0123456789abcdef';

@@ -15,7 +15,7 @@ const esquemaTokenRefresco = {
   properties: { tokenRefresco: { type: 'string', minLength: 10 } },
 };
 
-const ejemploUsuario = { id: 4, nombre: 'Ana López', correo: 'ana@reservalab.edu', rol: 'estudiante' };
+const ejemploUsuario = { id: 4, nombre: 'Carlos Pérez', correo: 'carlos@reservalab.edu', rol: 'estudiante' };
 const ejemploTokenRefresco = { tokenRefresco: '3f9a1c...e07b (96 caracteres hexadecimales)' };
 
 function respuestaError(descripcion: string, codigo: string, mensaje: string) {
@@ -69,7 +69,7 @@ export const rutasDocAutenticacion: Record<string, unknown> = {
                 contrasena: { type: 'string', minLength: 8, maxLength: 72 },
               },
             },
-            example: { nombre: 'Ana López', correo: 'ana@reservalab.edu', contrasena: 'Segura1234' },
+            example: { nombre: 'Carlos Pérez', correo: 'carlos@reservalab.edu', contrasena: 'Segura1234' },
           },
         },
       },
@@ -102,7 +102,7 @@ export const rutasDocAutenticacion: Record<string, unknown> = {
                 contrasena: { type: 'string' },
               },
             },
-            example: { correo: 'docente@reservalab.edu', contrasena: 'Docente1234' },
+            example: { correo: 'yaniz@reservalab.edu', contrasena: 'Docente1234' },
           },
         },
       },
@@ -123,7 +123,7 @@ export const rutasDocAutenticacion: Record<string, unknown> = {
               example: {
                 tokenAcceso: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
                 tokenRefresco: ejemploTokenRefresco.tokenRefresco,
-                usuario: { id: 2, nombre: 'Docente', correo: 'docente@reservalab.edu', rol: 'docente' },
+                usuario: { id: 2, nombre: 'Yaniz', correo: 'yaniz@reservalab.edu', rol: 'docente' },
               },
             },
           },

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
-import { app } from '../ayudantes';
+import { app, USUARIOS_PRUEBA } from '../ayudantes';
 
 // Pruebas de integración: requieren `pnpm servicios` y la semilla cargada
 describe('Flujo de autenticación (integración)', () => {
@@ -59,7 +59,7 @@ describe('Flujo de autenticación (integración)', () => {
   it('login con contraseña incorrecta da 401 CREDENCIALES_INVALIDAS', async () => {
     const respuesta = await request(app)
       .post('/api/v1/auth/login')
-      .send({ correo: 'admin@reservalab.edu', contrasena: 'Incorrecta1234' });
+      .send({ correo: USUARIOS_PRUEBA.administrador.correo, contrasena: 'Incorrecta1234' });
 
     expect(respuesta.status).toBe(401);
     expect(respuesta.body.error.codigo).toBe('CREDENCIALES_INVALIDAS');
