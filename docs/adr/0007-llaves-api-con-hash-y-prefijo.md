@@ -1,8 +1,6 @@
 # ADR 0007 — Llaves API guardadas como hash SHA-256 con prefijo visible
 
 - **Estado:** aceptada
-- **Fecha:** 2026-11-08
-- **Responsable:** Integrante C
 
 ## Contexto
 
