@@ -1,8 +1,6 @@
 # ADR 0009 — Interfaz web con HTML + TypeScript y Vite, sin framework
 
 - **Estado:** aceptada
-- **Fecha:** 2026-11-08
-- **Responsable:** Integrante C
 
 ## Contexto
 
