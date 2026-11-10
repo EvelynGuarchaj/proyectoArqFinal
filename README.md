@@ -175,4 +175,5 @@ reservalab/
 
 ## Uso de IA
 - Integrante A: Claude Code para generar diagramas y semillas de prueba
+- Integrante B: Claude Code para generación de borradores de reservas y caché
 - Integrante C: ChatGPT para apoyar la implementación de llaves API
