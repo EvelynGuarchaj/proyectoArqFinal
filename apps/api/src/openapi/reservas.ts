@@ -1,2 +1,2 @@
-// DUEÑA: Integrante B (stub creado por A)
+// DUEÑA: Integrante B 
 export const rutasDocReservas: Record<string, unknown> = {};
