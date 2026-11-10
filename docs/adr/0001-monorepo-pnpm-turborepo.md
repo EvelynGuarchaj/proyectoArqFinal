@@ -7,8 +7,7 @@ Aceptado.
 ## Contexto
 
 ReservaLab tiene tres aplicaciones (API, interfaz web y CLI) que comparten los mismos tipos y esquemas de
-validación (`UsuarioPublico`, `Reserva`, `esquemaCrearReserva`, etc.). Somos tres integrantes trabajando en
-paralelo con una fecha de entrega corta, y el enunciado pide la estructura `apps/` y `packages/`.
+validación (`UsuarioPublico`, `Reserva`, `esquemaCrearReserva`, etc.).
 
 Necesitamos:
 
@@ -25,13 +24,13 @@ Usar un **monorepo** con **pnpm 9 workspaces** y **Turborepo**:
   `workspace:^`, sin compilarlo ni publicarlo.
 - `turbo.json` define las tareas `dev`, `test` y `typecheck`; `pnpm typecheck` y `pnpm test` en la raíz
   las corren en todos los paquetes.
-- Un solo `pnpm-lock.yaml`, y solo la Integrante A agrega dependencias.
+- Un solo `pnpm-lock.yaml`.
 
 ## Alternativas descartadas
 
 | Alternativa | Motivo del descarte |
 |---|---|
-| **Un repositorio por aplicación** (api, web, cli) | Los tipos compartidos habría que copiarlos o publicarlos como paquete npm en cada cambio. Tres repositorios también triplican la configuración y complican revisar la integración en un solo PR. |
+| **Un repositorio por aplicación** (api, web, cli) | Los tipos compartidos habría que copiarlos o publicarlos como paquete npm en cada cambio. Tres repositorios también triplican la configuración y complican revisar la integración en un solo PULL REQUEST. |
 | **Monorepo con npm o Yarn workspaces, sin Turborepo** | npm instala más lento y deja que un paquete use dependencias que no declaró (dependencias "fantasma"); pnpm lo impide con su `node_modules` estricto. Sin Turborepo habría que escribir scripts propios para correr las tareas en orden en cada paquete. |
 | **Nx** | Resuelve lo mismo, pero trae generadores, plugins y mucha configuración que no necesitamos en un proyecto de este tamaño ni en el tiempo disponible. |
 
