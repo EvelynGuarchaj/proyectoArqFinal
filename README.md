@@ -96,6 +96,12 @@ CLI de administrador (ejemplo):
 pnpm --filter cli cli crear-llave --correo angela@reservalab.edu --contrasena Admin1234 \
   --nombre "Pantalla edificio B" --permisos read:now,read:spaces
 ```
+CLI ver todos los comandos:
+
+```bash
+pnpm --filter cli cli --ayuda
+```
+
 
 ## Pruebas
 
